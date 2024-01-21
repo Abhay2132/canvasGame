@@ -9,7 +9,7 @@ import Game from "./game/game.js";
 		ctx.canvas.height = window.innerHeight-5;
 	}
 	window.onresize();
-	const game = new Game(ctx);
+	window.game = new Game(ctx);
 	game.start();
 	
 	document.querySelector("#game-btn")

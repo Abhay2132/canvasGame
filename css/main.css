@@ -11,6 +11,10 @@ canvas {
 	top: 2px;
 }
 
+#console{
+	display: none;
+}
+
 #console, #console-body {
 	position: fixed;
 	bottom: 0;
@@ -29,6 +33,7 @@ canvas {
 	bottom: 3px;
 	left: 5px;
 	padding: 5px;
+	display:none;
 }
 
 #console-clr {

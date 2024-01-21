@@ -1,7 +1,8 @@
-import {Engine,EventData} from "../lib/Engine.js";
+import {Engine,EventData as ED} from "../lib/Engine.js";
 import {Rect, Polygon} from "../lib/Drawables.js";
-import {clip,randInt, C} from "../lib/util.js";
+import {clip,randInt, C, Vec2} from "../lib/util.js";
 import {CTransform} from "../lib/Components.js";
+import {isColliding} from "../lib/SAT.js";
 
 export default class Game extends Engine {
 	#ctx;
@@ -19,37 +20,61 @@ export default class Game extends Engine {
 		// this.addSystem(() =>console.log( this.getEntities() ))
 		this.spawnPlayer();
 		this.spawnEnemies();
+
 		this.addSystem(this.#sMovement.bind(this));
+		this.addSystem(this.#sCollisionDetection.bind(this));
+		this.addSystem(this.#sCollisionResolution.bind(this));
 	}
 	
 	spawnPlayer () {
 		this.#player = this.createEntity("player");
-		this.#player.cTransform = new CTransform()
-		this.#player.cDrawable = new Rect({
-			x:100, y:100, h:50,w:80, cornerRadius: 0, clr: "#284726",
-			angle:0.2850000000000002
-		});
 		
+		let cTransform = CTransform.create();
+		cTransform.speed=600;
+
+		this.#player.cTransform = cTransform;
+		const [x,y] = [20,10]
+		this.#player.cDrawable = new Polygon({cTransform: this.#player.cTransform , points:[[x,-y],[x,y],[-x,y],[-x,-y]], strokeStyle: "blue", fillStyle:"green", lineWidth:3});
 	}
 	
 	spawnEnemies () {
 			const e = this.createEntity("enemy");
-			e.cTransform = new CTransform();
-			e.cDrawable = new Polygon({x:100,y: 300,
-				length:60, sides:5});
-				
-			this.nme= e;
-			
-			window._nme = e;
-		
+			e.cTransform = CTransform.create({pos: new Vec2(100,300)})
+			e.cDrawable = new Polygon({cTransform:e.cTransform, radius:60, sides:5});		
 	}
 	start(){super.start();}
 	
 	#sMovement(){
-		this.nme.cDrawable.setAngle(this.nme.cDrawable.angle + 0.01);
-		
-		// console.log(EventData.touch.x, EventData.touch.y);
-		this.#player.cDrawable.x = clip(EventData.touch.x, this.#player.cDrawable.w/2, this.#ctx.canvas.width - 40) 
-		this.#player.cDrawable.y = clip(EventData.touch.y, this.#player.cDrawable.h/2, this.#ctx.canvas.height - 25)
+
+		// to rotate the enemies
+		for(let enemy of this.getEntities("enemy")){
+			enemy.cDrawable.setAngle(enemy.cTransform.angle + 0.01);
+		}
+
+		const {x:tx, y:ty} = ED.touch;
+		this.#player.cTransform.pos
+		.moveTo(new Vec2(tx,ty), this.#player.cTransform.speed*0.001*this.dt);
+	}
+
+	#sCollisionDetection(){
+		const player = this.#player;
+		const playerVertices = player.cDrawable.getAbsPoints()
+		player.collidingWith.length = 0;
+
+		for(let entity of this.getEntities("enemy")){
+			const enemyVertices = entity.cDrawable.getAbsPoints();
+			if(isColliding(playerVertices, enemyVertices)){
+				this.#player.collidingWith.push(entity.id)
+				console.log("COLLISION OCCURED!")
+			}
+		}
+	}
+
+	#sCollisionResolution(){
+		const entities = this.getEntities();
+		for(let entity of entities){
+			if(entity.collidingWith.length > 0)
+				entity.cDrawable.strokeStyle="red";
+		}
 	}
 }

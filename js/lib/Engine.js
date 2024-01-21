@@ -3,7 +3,6 @@ import FPS from "../game/entities/FPS.js";
 
 export const EventData = {
 	touch : { x:0,y:0, active:false},
-	//key : { 
 }
 
 export class Engine extends EntityMan{
@@ -14,16 +13,20 @@ export class Engine extends EntityMan{
 	#fps = new FPS();
 	#player
 	
-	#tx=0
-	#ty=0
-	#isTouching = false;
-	
 	#handleTouch(e){
-            event.preventDefault();
-            EventData.touch.active = e.type !== "touchend";
-            event.touches[0] && (EventData.touch.x = event.touches[0].pageX - this.#ctx.canvas.offsetLeft)
-            event.touches[0] && (EventData.touch.y = event.touches[0].pageY - this.#ctx.canvas.offsetTop)
+            e.preventDefault();
+			EventData.touch.active = (e.type !== "touchend");
+            e.touches[0] && (EventData.touch.x = e.touches[0].pageX - this.#ctx.canvas.offsetLeft)
+            e.touches[0] && (EventData.touch.y = e.touches[0].pageY - this.#ctx.canvas.offsetTop)
 	}
+
+	#handleMouse(e){
+		e.preventDefault();
+		EventData.touch.active = (e.type !== "mouseleave");
+		e.clientX && (EventData.touch.x = e.clientX - this.#ctx.canvas.offsetLeft)
+		e.clientY && (EventData.touch.y = e.clientY - this.#ctx.canvas.offsetTop)
+	}
+
 	#systems=[];
 	dt=16;
 	te=performance.now();
@@ -32,9 +35,13 @@ export class Engine extends EntityMan{
 		if(!ctx) throw new Error("canvas ctx is "+ctx);
 		super();
 		this.#ctx = ctx;
-		this.#ctx.canvas.addEventListener("touchmove", this.#handleTouch.bind(this));
-		this.#ctx.canvas.addEventListener("touchstart", this.#handleTouch.bind(this));
-		this.#ctx.canvas.addEventListener("touchend", this.#handleTouch.bind(this));
+		ctx.canvas.addEventListener("touchmove", this.#handleTouch.bind(this));
+		ctx.canvas.addEventListener("touchstart", this.#handleTouch.bind(this));
+		ctx.canvas.addEventListener("touchend", this.#handleTouch.bind(this));
+
+		ctx.canvas.addEventListener("mouseenter", this.#handleMouse.bind(this));
+		ctx.canvas.addEventListener("mousemove", this.#handleMouse.bind(this));
+		ctx.canvas.addEventListener("mouseleave", this.#handleMouse.bind(this));
 	}
 	
 	addSystem(s){
@@ -49,6 +56,7 @@ export class Engine extends EntityMan{
 	#run(te=0) {
 		window.requestAnimationFrame(this.#run.bind(this)) ;
 		if(!this.isRunning) return;
+		
 		this.te = te;
 		this.dt = te - this.#lastTe;
 		this.#lastTe = te;

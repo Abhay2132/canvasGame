@@ -1,31 +1,63 @@
 export class Vec2 {
-	x=0;y=0;
-	constructor(x,y){
-		x && (this.x = x);
-		y && (this.y = y);
+	#x=0;#y=0;
+	constructor(x=0,y=0){
+		this.#x = parseFloat(x);
+		this.#y = parseFloat(y);
 	}
 	dist(){
-		return Math.sqrt(this.x*this.x+this.y*this.y);
+		return Math.sqrt((this.#x*this.#x)+(this.#y*this.#y));
 	}
+
+	offset(dx,dy){
+		if(dx && dy){
+			this.#x += parseFloat(dx);
+			this.#y += parseFloat(dy);
+		}
+		return this;
+	}
+
+	set x(v){this.#x = parseFloat(v) || 0}
+	set y(v){this.#y = parseFloat(v) || 0}
+	get x(){return this.#x}
+	get y(){return this.#y}
 	
 	normalize(){
 		let d = this.dist();
-		this.x /= d;
-		this.y /= d;
+		this.#x /= d;
+		this.#y /= d;
+		return this;
 	}
 	
 	add(rhs){
-		if ( ! v instanceof Vec2) throw new Error("Vec2 expected, but get a "+rhs);
-		return new Vec2(this.x + rhs.x , this.y + rhs.y);
+		if ( ! rhs instanceof Vec2) throw new Error("Vec2 expected, but get a "+rhs);
+		return new Vec2(this.#x + rhs.x , this.#y + rhs.y);
 	}
 	
 	sub(rhs){
-		if ( ! v instanceof Vec2) throw new Error("Vec2 expected, but get a "+rhs);
-		return new Vec2(this.x - rhs.x , this.y - rhs.y);
+		if ( ! rhs instanceof Vec2) throw new Error("Vec2 expected, but get a "+rhs);
+		return new Vec2(this.#x - rhs.x , this.#y - rhs.y);
 	}
 	
 	scale (n) {
-		return new Vec2(this.x*n, this.y*n);
+		return new Vec2(this.#x*n, this.#y*n);
+	}
+
+	normL(){
+		
+	}
+
+	angle(){
+		return Math.atan(y/x);
+	}
+
+	moveTo(dest, ds){
+		if( dest.sub(this).dist()) {
+			this.x = dest.x;
+			this.y = dest.y;
+			return;
+		}
+		let vv = dest.sub(this).normalize().scale(ds); // vv : Instantaneous VelocityVector
+		this.offset(vv.x,vv.y);
 	}
 }
 

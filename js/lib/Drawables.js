@@ -1,4 +1,5 @@
-import {rotateD,getOrigin, translateTo,Angle} from "./util.js"
+import {rotateD,getOrigin, translateTo,Angle, Vec2} from "./util.js"
+import { CTransform } from "./Components.js";
 
 export class Line {
 	x1=0;y1=0;
@@ -105,81 +106,106 @@ export class Rect {
 	}
 }
 
-export class Polygon{
-	#center;
-	#points=[];
-	#pc=[];
-	constructor({x=0,y=0,sides=3, length=10, angle=0}){
-		Object.assign(this, {x,y,sides,length, angle});
-		this.#center = new Circle({x,y,r:1});
-		this.#setPoints();
-	}
-	
-	setAngle(rad){
-		this.angle=rad;
-		if(this.angle > 2*Math.PI) this.angle -= 2*Math.PI
-		this.#setPoints()
-	}
-	
-	getPoints(){return [...this.#points];}
-	
-	#setPoints(){
-		let da = Math.PI*2/this.sides;
-		let {x:ox,y:oy}=this;
-		this.#points.length=0// = [[this.#getdx(this.angle),this.#getdy(this.angle)]]
-		this.#pc.length =0;
-		
-		const end = 2*Math.PI+this.angle-da;
-		//for(let i=this.angle ; i <= end; i+=da){
-		let i = this.angle;
-		for(let a=0;a<this.sides;a++){
-			let x =this.#getdx(i)
-			let y=-1*this.#getdy(i)
-			this.#points.push([x,y])
-			this.#pc.push(new Circle({x:this.x+x,y:this.y+y,r:2,c:"blue"}))
-			
-			i+=da;
-		}
-	}
-	
-	#getdx(angle){
-		return this.length * Math.cos(angle);
-	}
-	
-	#getdy(angle){
-		return this.length * Math.sin(angle);
-	}
-	
-	_draw(ctx){
-		rotateD(ctx, this.x, this.y, 
-			(this.angle+=1),()=>this._draw(ctx))
-	}
-	
-	draw(ctx) {
-		ctx.save();
-		
-		const points = this.#points;
-		ctx.beginPath();
-		translateTo(ctx, this.x, this.y);
-		ctx.moveTo(points[0][0],points[0][1])
-		for(let i=1; i<points.length; i++){
-			let [x,y]=points[i];
-			ctx.lineTo(x,y);
-		}
-		ctx.closePath();
-		ctx.stroke();
-		
-		ctx.restore();
-		
-		this.#center.draw(ctx);
-		
-		for(let c of this.#pc) c.draw(ctx);
-	}
+export class Polygon {
+    #center;
+    #points = [];
+    #pc = []; // circle for vertices
+
+    cTransform = CTransform.create()
+    sides = 3
+    radius = 0
+    lineWidth = 1
+    fillStyle = "transparent"
+    strokeStyle = "black"
+
+    constructor({ cTransform = CTransform.create(), sides = 3, radius = 0, points = [], lineWidth = 1, fillStyle = "transparent", strokeStyle = "black" }) {
+        Object.assign(this, { cTransform, sides, radius, fillStyle, strokeStyle, lineWidth });
+
+        this.#center = new Circle({ cTransform, r: 1 });
+        this.setPoints(points);
+    }
+
+    setAngle(rad) {
+        this.cTransform.angle = rad;
+        if (this.cTransform.angle > 2 * Math.PI) this.cTransform.angle -= 2 * Math.PI
+        this.setPoints()
+    }
+
+    getPoints() { return [...this.#points]; }
+
+    getAbsPoints() {
+		let {x:cx,y:cy}=this.cTransform.pos
+        return this.getPoints().map(([x, y]) => ([x + cx, y + cy]));
+    }
+
+    setPoints(points) {
+        if (Array.isArray(points) && points.length > 0) {
+            this.#points = Array.from(points);
+            return this;
+        }
+        let da = Math.PI * 2 / this.sides;
+        let {x:ox,y:oy} = this.cTransform.pos
+        this.#points.length = 0// = [[this.#getdx(this.cTransform.angle),this.#getdy(this.cTransform.angle)]]
+        this.#pc.length = 0;
+
+        const end = 2 * Math.PI + this.cTransform.angle - da;
+        //for(let i=this.cTransform.angle ; i <= end; i+=da){
+        let i = this.cTransform.angle;
+        for (let a = 0; a < this.sides; a++) {
+            let x = this.#getdx(i)
+            let y = -1 * this.#getdy(i)
+            this.#points.push([x, y])
+
+            this.#pc.push(new Circle({ 
+				cTransform : CTransform.create({pos:new Vec2(ox+x,oy+y)}), 
+                r: 2, 
+				c: "blue" 
+			}))
+
+            i += da;
+        }
+    }
+
+    #getdx(angle) {
+        return this.radius * Math.cos(angle);
+    }
+
+    #getdy(angle) {
+        return this.radius * Math.sin(angle);
+    }
+
+    draw(ctx) {
+        ctx.save();
+
+        // console.log("Drawing polygon of sides : ", this.sides);
+		const {x:cx,y:cy} = this.cTransform.pos
+        translateTo(ctx, cx,cy);
+
+        const points = this.#points;
+        ctx.fillStyle = this.fillStyle;
+        ctx.strokeStyle = this.strokeStyle;
+        ctx.lineWidth = this.lineWidth
+        ctx.beginPath();
+        ctx.moveTo(points[0][0], points[0][1])
+        for (let i = 1; i < points.length; i++) {
+            let [x, y] = points[i];
+            ctx.lineTo(x, y);
+        }
+        ctx.closePath();
+        ctx.stroke();
+        ctx.fill()
+        ctx.restore();
+
+        this.#center.draw(ctx);
+
+        for (let c of this.#pc) c.draw(ctx);
+    }
 }
 
 export class Circle {
-	constructor({x=0,y=0,r=0,c="red"}={}){
-		Object.assign(this, {x,y,r,c});
+	cTransform;
+	constructor({cTransform=CTransform.create(),r=0,c="red"}={}){
+		Object.assign(this, {cTransform,r,c});
 	}
 	
 	draw(ctx) {
@@ -187,7 +213,8 @@ export class Circle {
 		
 		var radius =this.r;
 		
-		translateTo(ctx,this.x, this.y);
+		const {x,y} = this.cTransform.pos
+		translateTo(ctx, x,y);
 		
 		ctx.fillStyle=this.c;
 		ctx.strokeStyle=this.c

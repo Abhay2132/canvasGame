@@ -13,6 +13,7 @@ class Entity {
 	
 	cTransform = new CTransform();
 	cDrawable = new CDrawable();
+	collidingWith = []; // array of entities colliding with current entity
 }
 
 
