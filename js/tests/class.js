@@ -1,23 +1,24 @@
-class Animal {
-  constructor(name) {
-    this.name = name;
-  }
-
-  speak() {
-    console.log(`${this.name} makes a noise.`);
-  }
+class A {
+	name="Abhay"
 }
 
-class Dog extends Animal {
-  constructor(name) {
-    super(name); // call the super class constructor and pass in the name parameter
-    this.name = "Abhay";
-  }
-
-
+class B extends A{
+	constructor(){
+		super()
+	}
 }
 
-const d = new Dog("Mitzie");
-d.speak(); // Mitzie barks.
+class C extends B{
+	constructor(){
+		super()
+	}
+	
+	getName(){
+		return this.name;
+	}
+}
 
-console.log(d instanceof Animal)
+
+const c = new C();
+
+console.log(c.getName());

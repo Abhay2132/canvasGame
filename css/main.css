@@ -10,3 +10,30 @@ canvas {
 	left: 0.5px;
 	top: 2px;
 }
+
+#console, #console-body {
+	position: fixed;
+	bottom: 0;
+	right: 0;
+	height: 30%;
+	width: 40%;
+	background: rgba(0,0,0,0.3);
+	padding: 5px;
+	box-sizing: border-box;
+	overflow-y: scroll;
+	font-size:0.7rem;
+}
+
+#game-btn {
+	position: fixed;
+	bottom: 3px;
+	left: 5px;
+	padding: 5px;
+}
+
+#console-clr {
+	position: fixed;
+	right: 0;
+	background: red;
+	color: white;
+}
