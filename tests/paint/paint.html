@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Title Here</title>
+    
+</head>
+<style>
+
+#controls{
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	height: 40px;
+	background: #fff;
+	box-sizing: border-box;
+	width: var(--innerWidth,100%);
+	display: flex;
+	line-height: 40px;
+}
+body{margin: 0;overflow:hidden;}
+canvas#paint{overflow:hidden; outline: 1px solid black;}
+
+label.control-btn {
+	--h : 30px
+	background: rgba(0,0,0,0.1);
+	margin: 5px;
+	line-height: var(--h);
+	border-radius: 5px;
+	padding: 0 5px;
+	box-shadow: 0 0 5px #333;
+	aspect-ratio: 1/1;
+	height: var(--h);
+}
+
+label.control-btn > img {
+	height: 100%;
+	width: 100%;
+	transform: scale(0.8);
+}
+
+.hidden {
+	display:none;
+}
+
+input:checked + label.control-btn {
+	box-shadow: inset 0 0 5px #333;
+}
+
+#colors {
+	display: flex;
+}
+
+.color {
+	border-radius: 5px;
+	height: 30px;
+	width: 30px;
+	margin: 6px;
+	background: orange;
+	transition: 300ms;
+}
+
+.color-selected {
+	transform: rotate(45deg) scale(0.75);
+	box-sizing: border-box;
+}
+
+
+</style>
+<body>
+<canvas id="paint"></canvas>
+
+<div id=controls >
+<label><input type=checkbox id="isDrawing"></label>
+<input type=checkbox id="fill" class=hidden> 
+<label class=control-btn for="fill">
+<img src="./assets/icons/bucket.svg" />
+</label>
+<div id="colors">
+	<div class="color color-selected" data-value=red></div>
+	<div class=color data-value=red></div>
+	<div class=color data-value=red></div>
+	<div class=color data-value=red></div>
+</div>
+</div>
+
+</body>
+<script src="./paint_.js" type="module"></script>
+</html>

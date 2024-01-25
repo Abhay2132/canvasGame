@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Title Here</title>
+    
+</head>
+<style>
+
+label{
+	position: fixed;
+	bottom: 20px;
+	left: 5px;
+}
+body{margin: 0;overflow:hidden;}
+canvas#paint{overflow:hidden; outline: 1px solid orange;}
+</style>
+<body>
+<canvas id="paint"></canvas>
+</body>
+<script type="module">
+
+var canvas = document.getElementById("paint");
+
+window.ctx = canvas.getContext("2d",{ willReadFrequently: true });
+
+window.onresize = () => {
+ctx.canvas.width  = window.innerWidth;
+ctx.canvas.height = window.innerHeight-5;
+}
+window.onresize();
+
+// app code
+//ctx.beginPath();
+ctx.moveTo(100,100);
+ctx.lineTo(200,10);
+'ctx.lineTo(200,100);
+ctx.stroke();
+ctx.stroke();
+
+</script>
+</html>

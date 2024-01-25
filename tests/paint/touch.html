@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Your Paint App</title>
+	<style>
+		html, body {
+			margin:0;
+		}
+		
+		#ball{
+			--size: 20px;
+			position: fixed;
+			top: calc( -1 * var(--size) / 2);
+			left: calc(-1 * var(--size) / 2);
+			height: var(--size);
+			aspect-ratio:1/1;
+			border-radius: 50%;
+			background: #ab8261;
+		}
+	</style>
+</head>
+<body>
+<div id="ball"></div>
+</body>
+<script >
+	const moveBall = e => {
+		let touch = Array.from(e.touches).at(-1)
+		let {clientX : x , clientY: y} = touch;
+		
+		//ball.style.top = y+"px";
+		//ball.style.left = x+"px";
+		//console.log(touch)
+		
+		ball.style.transform = `translateX(${x}px) translateY(${y}px)`
+	}
+	window.addEventListener("touchstart", moveBall)
+	window.addEventListener("touchmove", moveBall)
+</script>
+</html>

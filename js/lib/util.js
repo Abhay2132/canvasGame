@@ -51,7 +51,7 @@ export class Vec2 {
 	}
 
 	moveTo(dest, ds){
-		if( dest.sub(this).dist()) {
+		if(dest.sub(this).dist()<ds) {
 			this.x = dest.x;
 			this.y = dest.y;
 			return;

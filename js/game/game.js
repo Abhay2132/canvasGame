@@ -29,8 +29,9 @@ export default class Game extends Engine {
 	spawnPlayer () {
 		this.#player = this.createEntity("player");
 		
+		this.#player.clr = "blue"
 		let cTransform = CTransform.create();
-		cTransform.speed=600;
+		cTransform.speed=60;
 
 		this.#player.cTransform = cTransform;
 		const [x,y] = [20,10]
@@ -52,8 +53,17 @@ export default class Game extends Engine {
 		}
 
 		const {x:tx, y:ty} = ED.touch;
+		let dest = new Vec2(tx,ty);
+		
+		let {speed} = this.#player.cTransform
+		speed += dest
+			.sub(this.#player.cTransform.pos)
+			.dist()
+		
+		
+		const ds = speed*0.001*this.dt;
 		this.#player.cTransform.pos
-		.moveTo(new Vec2(tx,ty), this.#player.cTransform.speed*0.001*this.dt);
+		.moveTo(dest, ds)
 	}
 
 	#sCollisionDetection(){
@@ -75,6 +85,8 @@ export default class Game extends Engine {
 		for(let entity of entities){
 			if(entity.collidingWith.length > 0)
 				entity.cDrawable.strokeStyle="red";
+			else
+				entity.clr && (entity.cDrawable.strokeStyle=entity.clr)
 		}
 	}
 }
